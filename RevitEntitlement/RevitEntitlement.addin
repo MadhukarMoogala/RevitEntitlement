@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+	<AddIn Type="Command">
+		<Text>Command RevitEntitlement</Text>
+		<Description>Revit API Entitlement Test</Description>
+		<Assembly>RevitEntitlement.dll</Assembly>
+		<FullClassName>RevitEntitlement.Command</FullClassName>
+		<ClientId>72287624-FA42-4213-BD4D-C0BD42C50B3B</ClientId>
+		<VendorId>adn.autodesk.io</VendorId>
+		<VendorDescription>A sample application to execute Entitlement API </VendorDescription>
+	</AddIn>
+	<AddIn Type="Application">
+		<Name>Application RevitEntitlement</Name>
+		<Assembly>RevitEntitlement.dll</Assembly>
+		<FullClassName>RevitEntitlement.App</FullClassName>
+		<ClientId>4824D584-BD31-4670-B6EE-7C9D3A0B55C4</ClientId>
+		<VendorId>adn.autodesk.io</VendorId>
+		<VendorDescription>A sample application to execute Entitlement API </VendorDescription>
+	</AddIn>
+</RevitAddIns>
