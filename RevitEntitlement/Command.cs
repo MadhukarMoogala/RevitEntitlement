@@ -17,11 +17,14 @@ namespace RevitEntitlement
     public class Command : IExternalCommand
     {
 
-        
+        ///** I tested on this app.*/
+
+        //https://apps.autodesk.com/RVT/en/Detail/Index?id=1257010617153832891&appLang=en&os=Win64&autostart=true
+
         Result IExternalCommand.Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             bool isEntitled = false;
-            const string appId = @"2024453975166401172";
+            const string appId = @"1257010617153832891";
             UIApplication revitUI = commandData.Application;
             Application revitApplication = revitUI.Application;
             string userId = revitApplication.LoginUserId;
@@ -45,6 +48,9 @@ namespace RevitEntitlement
 
             return Result.Succeeded;
         }
+
+
+        
         public static async Task<bool> IsEntitled(string userId, string appId)
         {
 

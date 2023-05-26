@@ -70,10 +70,19 @@
   <ItemGroup>
     <AddinDeliverables Include="$(ProjectDir)$(OutDir)*.dll;$(ProjectDir)$(OutDir)\RevitEntitlement.addin" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <ItemGroup>
+    <Content Include="PackageContents.xml" />
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <Message Text="Copying addin and dlls to '$(PROGRAMDATA)\Autodesk\Revit\Addins\2024'">
     </Message>
     <Copy SourceFiles="@(AddinDeliverables)" DestinationFolder="$(PROGRAMDATA)\Autodesk\Revit\Addins\2024" OverwriteReadOnlyFiles="true">
+    </Copy>
+  </Target>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Message Text="Copying addin and dlls to '$(ProjecDir)\..\RevitEntitlement.bundle\Contents'">
+    </Message>
+    <Copy SourceFiles="@(AddinDeliverables)" DestinationFolder="$(ProjecDir)\..\RevitEntitlement.bundle\Contents" OverwriteReadOnlyFiles="true">
     </Copy>
   </Target>
 </Project>

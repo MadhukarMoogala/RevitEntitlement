@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ApplicationPackage Name="RevitEntitlement" Description="Test Plugin for Revit Entitlement Test" Author="madhukar.moogala@autodesk.com">
+    <CompanyDetails Name="Autodesk, Inc" Url="http://adn.autodesk.io" Email="aps.help@autodesk.com"/>
+    <Components Description="Tests Revit API Entitlement">
+        <RuntimeRequirements SeriesMax="R2024" SeriesMin="R2019" Platform="Revit" OS="Win64"/>
+        <ComponentEntry LoadOnRevitStartup="True" LoadOnCommandInvocation="False" AppDescription="Revit Entitlement" ModuleName="./Contents/RevitEntitlement.addin" Version="1.0.0" AppName="RevitEntitlement"/>
+    </Components>
+</ApplicationPackage>
