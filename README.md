@@ -25,5 +25,7 @@ Nuget install Newtonsoft.Json --version 13.0.3
 - Go to Revit Ribbon Bar\Addins\External Tool\
 - Click on Commands RevitEntitlement
 
+### Author
+Madhukar Moogala
 
 
