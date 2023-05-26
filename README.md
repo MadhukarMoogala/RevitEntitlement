@@ -24,7 +24,7 @@ Nuget install Newtonsoft.Json --version 13.0.3
 
 - Go to Revit Ribbon Bar\Addins\External Tool\
 
-![RevitCommand](https://git.autodesk.com/moogalm/RevitEntitlement/blob/master/Result.png)
+![RevitCommand](https://git.autodesk.com/moogalm/RevitEntitlement/blob/master/RevitAddinCmd.png)
 
 - Click on Commands RevitEntitlement
 ![Result](https://git.autodesk.com/moogalm/RevitEntitlement/blob/master/Result.png)
