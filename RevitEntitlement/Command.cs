@@ -16,90 +16,97 @@ namespace RevitEntitlement
     [Transaction(TransactionMode.Manual)]
     public class Command : IExternalCommand
     {
-
-        ///** I tested on this app.*/
-
-        //https://apps.autodesk.com/RVT/en/Detail/Index?id=1257010617153832891&appLang=en&os=Win64&autostart=true
-
-        Result IExternalCommand.Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            bool isEntitled = false;
-            const string appId = @"1257010617153832891";
-            UIApplication revitUI = commandData.Application;
-            Application revitApplication = revitUI.Application;
-            string userId = revitApplication.LoginUserId;
+            // Get the application and document objects
+            UIApplication uiapp = commandData.Application;
+            UIDocument uidoc = uiapp.ActiveUIDocument;
+            Autodesk.Revit.ApplicationServices.Application app = uiapp.Application;
+            Document doc = uidoc.Document;
 
+            bool isEntitled = false;
+            const string appId = @"1234567890987654321";
+            string userId = app.LoginUserId;
+
+            // Create a ManualResetEventSlim to wait for the async task to complete
+            var resetEvent = new ManualResetEventSlim(false);
+
+            // Run the async task to check entitlement
             Task.Run(async () =>
             {
                 try
                 {
-                                   
-                    isEntitled = await IsEntitled(userId, appId);
+                    // ConfigureAwait(false) prevents capturing the current synchronization context, 
+                    // which avoids potential UI thread blocking and responsiveness issues
+                    isEntitled = await IsEntitled(userId, appId).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
-                    Debug.Print(e.Message);
-
+                    // Log any exception that occurs during the async operation
+                    Debug.Print($"Exception: {e.Message}");
                 }
-
+                finally
+                {
+                    // Signal that the async task is complete
+                    resetEvent.Set();
+                }
             });
 
-            TaskDialog.Show("Entitlement", $" Is {appId} Entitled to {userId} : {isEntitled}");
+            // Block the main thread until the async task is completed
+            resetEvent.Wait();
+
+            // Display the entitlement status
+            if (isEntitled)
+            {
+
+                //Write your business logic here
+
+                TaskDialog.Show("Entitlement Status", $"User ID '{userId}' is entitled to use the application with ID '{appId}'");
+            }
+            else
+            {
+                TaskDialog.Show("Entitlement Status", $"User ID '{userId}' is not entitled to use the application with ID '{appId}'"
+                    + ". Please check the entitlement details or contact support if you believe this is an error.");
+            }
 
             return Result.Succeeded;
         }
 
-
-        
         public static async Task<bool> IsEntitled(string userId, string appId)
         {
+            // Construct the URL for the entitlement check API
+            var url = $"https://apps.autodesk.com/webservices/checkentitlement?userid={Uri.EscapeDataString(userId)}&appid={Uri.EscapeDataString(appId)}";
 
-            var url = string.Format("https://apps.autodesk.com/webservices/checkentitlement?userid={0}&appid={1}",
-                            Uri.EscapeUriString(userId),
-                            Uri.EscapeUriString(appId));
-
-            using (var httpResponse = await new HttpClient().GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+            using (var httpClient = new HttpClient())
             {
-                httpResponse.EnsureSuccessStatusCode(); // throws if not 200-299
+                // Send the GET request and read the response
+                var httpResponse = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+                httpResponse.EnsureSuccessStatusCode(); // Throws if the status code is not 200-299
 
-                if (httpResponse.Content is object && httpResponse.Content.Headers.ContentType.MediaType == "application/json")
+                if (httpResponse.Content != null && httpResponse.Content.Headers.ContentType.MediaType == "application/json")
                 {
                     var content = await httpResponse.Content.ReadAsStringAsync();
                     try
                     {
-
-                        EntitlementResponse entitlementResponse = JsonConvert.DeserializeObject<EntitlementResponse>(content);
+                        // Deserialize the JSON response
+                        var entitlementResponse = JsonConvert.DeserializeObject<EntitlementResponse>(content);
                         return entitlementResponse.IsValid;
                     }
-                    catch (JsonException ex) // Invalid JSON
+                    catch (JsonException ex)
                     {
-                        throw ex;
+                        throw new Exception("Failed to deserialize the JSON response.", ex);
                     }
                 }
-
             }
             return false;
         }
-    }
 
-    public class EntitlementResponse
-    {
-        public string UserId { get; set; }
-        public string AppId { get; set; }
-        public bool IsValid { get; set; }
-        public string Message { get; set; }
-    }
-
-    public class App : IExternalApplication
-    {
-        Result IExternalApplication.OnShutdown(UIControlledApplication application)
+        public class EntitlementResponse
         {
-            return Result.Succeeded;
-        }
-
-        Result IExternalApplication.OnStartup(UIControlledApplication application)
-        {
-            return Result.Succeeded;
+            public string UserId { get; set; }
+            public string AppId { get; set; }
+            public bool IsValid { get; set; }
+            public string Message { get; set; }
         }
     }
 }
